@@ -1,4 +1,4 @@
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 # @Auteur : Aurélien Vannieuwenhuyze
 # @Entreprise : Junior Makers Place
 # @Livre
@@ -14,16 +14,16 @@
 #   Dans la zone de recherche en haut à gauche saisir le nom du module
 #   Choisir la version en bas à droite
 #   Cliquer sur le bouton install situé en bas à gauche
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 
 
 import pandas as pnd
 import JMPStatistiques as jmp
 import numpy as np
 
-#--- CREATION D'UN DATAFRAME ----
-observations = pnd.DataFrame({'NOTES':np.array([3,19,10,15,14,12,9,8,11,12,11,12,13,11,14,16])})
+# --- CREATION D'UN DATAFRAME ----
+observations = pnd.DataFrame({'NOTES': np.array([3, 19, 10, 15, 14, 12, 9, 8, 11, 12, 11, 12, 13, 11, 14, 16])})
 
-#--- ANALYSE D'UNE FEATURE ---
+# --- ANALYSE D'UNE FEATURE ---
 stats = jmp.JMPStatistiques(observations['NOTES'])
 stats.analyseFeature()

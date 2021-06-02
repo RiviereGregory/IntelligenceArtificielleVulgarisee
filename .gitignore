@@ -1,0 +1,22 @@
+__pycache__/
+venv/
+*.pyc
+.DS_Store
+
+# IntelliJ
+*.iml
+.idea/
+.idea/misc.xml
+.idea/modules.xml
+.idea/warmup.iml
+.idea/assetWizardSettings.xml
+.idea/workspace.xml
+.idea/inspectionProfiles/
+.idea/inspectionProfiles/profiles_settings.xml
+
+db.sqlite3
+
+Scripts/
+Lib/
+
+target/

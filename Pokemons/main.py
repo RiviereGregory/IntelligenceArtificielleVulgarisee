@@ -20,7 +20,8 @@ for fichier in listeDeFichiers:
     print(fichier)
 
 # Chargement des données des Pokemons
-nosPokemons = pnd.read_csv("datas/pokedex.csv")
+# encoding="ISO-8859-1" pour lire correctement les accents
+nosPokemons = pnd.read_csv("datas/pokedex.csv", encoding="ISO-8859-1")
 
 # Affichage des colonnes du dataFrame
 print(nosPokemons.columns.values)
@@ -64,3 +65,44 @@ print(combats.shape)
 
 # Information sur le jeu de données (vérification que les données sont completes)
 print(combats.info())
+
+# Nombre de combat fait par pokemon
+# Attention les noms des colonnes sont trompeuse
+# Second_Pokemon, Premier_Pokemon, Pokemon_Gagnant
+# En vérité c'est :
+# Numéro du pokemon, nb de fois en second position, nb de fois en second position
+nbFoisPremierePosition = combats.groupby('Premier_Pokemon').count()
+print(nbFoisPremierePosition)
+# Premier_Pokemon, Second_Pokemon, Pokemon_Gagnant
+# En vérité c'est :
+# Numéro du pokemon, nb de fois en première position, nb de fois en première position
+nbFoisSecondePosition = combats.groupby('Second_Pokemon').count()
+print(nbFoisSecondePosition)
+# Agregation des 2 tableau
+nombreTotalDeCombats = nbFoisPremierePosition + nbFoisSecondePosition
+print(nombreTotalDeCombats)
+nombreDeVictoires = combats.groupby('Pokemon_Gagnant').count()
+print(nombreDeVictoires)
+
+# On crée une liste à partir d'une extraction pour obtenir la liste des Pokemons que l'on trie par numéro
+# Cette liste de numéros qui nous permettra réaliser l'agrégation des données
+listeAAgreger = combats.groupby('Pokemon_Gagnant').count()
+listeAAgreger.sort_index()
+
+# On ajoute le nombre de combats
+listeAAgreger['NBR_COMBATS'] = nbFoisPremierePosition.Pokemon_Gagnant + nbFoisSecondePosition.Pokemon_Gagnant
+
+# On ajoute le nombre de victoires
+listeAAgreger['NBR_VICTOIRES'] = nombreDeVictoires.Premier_Pokemon
+
+# On calcule le pourcentage de victoires
+listeAAgreger['POURCENTAGE_DE_VICTOIRES'] = nombreDeVictoires.Premier_Pokemon / (
+        nbFoisPremierePosition.Pokemon_Gagnant + nbFoisSecondePosition.Pokemon_Gagnant)
+
+# On affiche la nouvelle liste
+print(listeAAgreger)
+
+# Agregation avec le pokédex
+nouveauPokedex = nosPokemons.merge(listeAAgreger, left_on='NUMERO', right_index=True, how='left')
+print(nouveauPokedex)
+nouveauPokedex.to_csv('datas/nouveau_pokedex.csv', encoding='utf-8', index=False)

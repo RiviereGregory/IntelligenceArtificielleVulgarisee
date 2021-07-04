@@ -49,3 +49,18 @@ print(nosPokemons['NOM'][63])
 # le nom manquant est Colossinge
 nosPokemons['NOM'][62] = 'Colossinge'
 print(nosPokemons['NOM'][62])
+
+# Chargement des données des Combats
+combats = pnd.read_csv("datas/combats.csv")
+
+# Affichage des colonnes du dataFrame
+print(combats.columns.values)
+
+# Affichage des 10 premières lignes
+print(combats.head(10))
+
+# Comptage du nombre d'observation et de features
+print(combats.shape)
+
+# Information sur le jeu de données (vérification que les données sont completes)
+print(combats.info())

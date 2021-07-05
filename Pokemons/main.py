@@ -171,3 +171,12 @@ plt.show()
 # POINTS_ATTAQUE correlation de 0.5 avec POURCENTAGE_DE_VICTOIRES
 # Par contre deception pour
 # LEGENDAIRE correlation de 0.33 avec POURCENTAGE_DE_VICTOIRES
+
+
+# ***********************
+# APPRENTISSAGE
+# ***********************
+
+# Sauvegarde du dataframe pokedex
+dataset = nouveauPokedex
+dataset.to_csv('datas/dataset.csv', sep='\t')

@@ -157,3 +157,17 @@ print(nouveauPokedex.groupby('TYPE_1').agg({"POURCENTAGE_DE_VICTOIRES": "mean"})
 # Dragon                      0.633587
 # Vol                         0.765061
 
+# *********************************
+# Recherche correlation
+# *********************************
+corr = nouveauPokedex.loc[:,
+       ['TYPE_1', 'POINTS_DE_VIE', 'POINTS_ATTAQUE', 'POINTS_DEFFENCE', 'POINTS_ATTAQUE_SPECIALE',
+        'POINT_DEFENSE_SPECIALE', 'POINTS_VITESSE', 'LEGENDAIRE', 'POURCENTAGE_DE_VICTOIRES']].corr()
+sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns, annot=True)
+plt.show()
+
+# Résultat :
+# POINTS_VITESSE correlation de 0.94 avec POURCENTAGE_DE_VICTOIRES
+# POINTS_ATTAQUE correlation de 0.5 avec POURCENTAGE_DE_VICTOIRES
+# Par contre deception pour
+# LEGENDAIRE correlation de 0.33 avec POURCENTAGE_DE_VICTOIRES

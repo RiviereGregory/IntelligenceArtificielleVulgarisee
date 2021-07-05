@@ -91,6 +91,9 @@ algorithme.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
 # Realisation de la prédiction sur le jeu  de test
 predictions = algorithme.predict(X_VALIDATION)
 
+# Vérification du score d'apprentissage pour éviter le surapprentissage
+precision_apprentissage = algorithme.score(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+print(">> precision_apprentissage = " + str(precision_apprentissage))
 # Calcul de la précision de l'apprentissage à l'aide de la
 # fonction r2_score
 precision = r2_score(Y_VALIDATION, predictions)

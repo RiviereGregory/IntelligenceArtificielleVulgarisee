@@ -3,7 +3,9 @@
 # ***********************
 import os
 
+import matplotlib.pyplot as plt
 import pandas as pnd
+import seaborn as sns
 
 # désactivation du nombre maximun de colonnes du dataframe à afficher
 pnd.set_option('display.max_columns', None)
@@ -106,3 +108,52 @@ print(listeAAgreger)
 nouveauPokedex = nosPokemons.merge(listeAAgreger, left_on='NUMERO', right_index=True, how='left')
 print(nouveauPokedex)
 nouveauPokedex.to_csv('datas/nouveau_pokedex.csv', encoding='utf-8', index=False)
+
+# Statistiques
+print(nouveauPokedex.describe())
+
+# Visualisation des pokemons de type 1
+axe_X = sns.countplot(x="TYPE_1", hue="LEGENDAIRE", data=nouveauPokedex)
+plt.xticks(rotation=90)
+plt.xlabel('TYPE_1')
+plt.ylabel('Total')
+plt.title("POKEMONS DE TYPE_1")
+plt.show()
+
+# Visualisation des pokemons de type 2
+axe_X = sns.countplot(x="TYPE_2", hue="LEGENDAIRE", data=nouveauPokedex)
+plt.xticks(rotation=90)
+plt.xlabel('TYPE_2')
+plt.ylabel('Total')
+plt.title("POKEMONS DE TYPE_2")
+plt.show()
+
+# ***********************************************
+# Résultat les pokémons dont l'histogramme est le plus important
+# Premier type Herbe, Eau, Insecte et Normal
+# Second type Vol, Poison et Sol
+# ***********************************************
+
+print(nouveauPokedex.groupby('TYPE_1').agg({"POURCENTAGE_DE_VICTOIRES": "mean"}).sort_values(
+    by="POURCENTAGE_DE_VICTOIRES"))
+
+# Résultat
+# Fée                         0.329300
+# Roche                       0.404852
+# Acier                       0.424529
+# Poison                      0.433262
+# Insecte                     0.439006
+# Glace                       0.439604
+# Herbe                       0.440364
+# Eau                         0.469357
+# Combat                      0.475616
+# Spectre                     0.484027
+# Normal                      0.535578
+# Sol                         0.541526
+# Psy                         0.545747
+# Feu                         0.579215
+# Obscur                      0.629726
+# Electrique                  0.632861
+# Dragon                      0.633587
+# Vol                         0.765061
+

@@ -1,5 +1,17 @@
 import pandas as pnd
 from matplotlib import pyplot as plt
+# Algorithme de "boosting"
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+# fonction de calcul du précision accuracy_score pour la classification
+from sklearn.metrics import accuracy_score
+# Pour tester tous les hyperparamtres du SVM
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 import JMPStatistiques as jmp
 
@@ -71,3 +83,80 @@ plt.show()
 # --> les valeurs extrêmes sont les rond noir en dehors des moustaches
 
 # ------- Choix d'un modèle de prédiction -------- #
+array = observations.values
+# convertion en type décimal
+X = array[:, 0:-1].astype(float)
+
+# Choix de la dernière colonne commme feature de prédiction
+Y = array[:, -1]
+
+# Création jeux d'apprentissage et de test
+percentage_donnees_test = 0.2
+X_APPRENTISSAGE, X_VALIDATION, Y_APPRENTISSAGE, Y_VALIDATION = train_test_split(X, Y, test_size=percentage_donnees_test,
+                                                                                random_state=42)
+# REGRESSION LOGISTIQUE
+regression_logistique = LogisticRegression()
+regression_logistique.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = regression_logistique.predict(X_VALIDATION)
+print("Regression logistique: " + str(accuracy_score(predictions, Y_VALIDATION)))
+
+# ARBRE DE DECISION
+arbre_decision = DecisionTreeClassifier()
+arbre_decision.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = arbre_decision.predict(X_VALIDATION)
+print("Arbre de décision:  " + str(accuracy_score(predictions, Y_VALIDATION)))
+
+# FORET ALEATOIRES
+foret_aleatoire = RandomForestClassifier()
+foret_aleatoire.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = foret_aleatoire.predict(X_VALIDATION)
+print("Foret aléatoire: " + str(accuracy_score(predictions, Y_VALIDATION)))
+
+# K PLUS PROCHES VOISINS
+knn = KNeighborsClassifier()
+knn.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = knn.predict(X_VALIDATION)
+print("K plus proche voisins: " + str(accuracy_score(predictions, Y_VALIDATION)))
+
+# MACHINE VECTEURS DE SUPPORT
+SVM = SVC(gamma='auto')
+SVM.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = SVM.predict(X_VALIDATION)
+print("Machine vecteurs de support: " + str(accuracy_score(predictions, Y_VALIDATION)))
+
+# Regression logistique: 0.7857142857142857
+# Arbre de décision:  0.5952380952380952
+# Foret aléatoire: 0.8333333333333334
+# K plus proche voisins: 0.8571428571428571
+# Machine vecteurs de support: 0.8333333333333334
+
+# Optimisation du SVM (MACHINE VECTEURS DE SUPPORT)
+# Définition d'une plage de valeurs à tester
+penalite = [{'C': range(1, 100)}]
+
+# Tests avec 5 échantillon de Validation Croisée
+recherche_optimisations = GridSearchCV(SVC(), penalite, cv=5)
+recherche_optimisations.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+
+print("Le meilleur paramètre est :")
+print()
+print(recherche_optimisations.best_params_)
+print()
+# Le meilleur paramètre est : {'C': 35}
+
+# MACHINE A VECTEURS DE SUPPORT OPTIMISE
+SVM = SVC(C=35, gamma='auto')
+SVM.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = SVM.predict(X_VALIDATION)
+print("Machine à vecteurs de support optimisé: " + str(accuracy_score(predictions, Y_VALIDATION)))
+# Machine à vecteurs de support optimisé: 0.9047619047619048
+
+# --> Le meilleur algo dans ce cas est le SVM (MACHINE VECTEURS DE SUPPORT)
+
+# Test du gradient boosting pour voir s'il est le meilleur
+gradientBoosting = GradientBoostingClassifier()
+gradientBoosting.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+predictions = SVM.predict(X_VALIDATION)
+print("GRADIENT BOOSTING: " + str(accuracy_score(predictions, Y_VALIDATION)))
+# --> GRADIENT BOOSTING: 0.9047619047619048
+# Sans optimistaion le RADIENT BOOSTING est le plus efficace

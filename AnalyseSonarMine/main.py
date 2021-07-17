@@ -1,21 +1,18 @@
+import numpy as np
 import pandas as pnd
 from matplotlib import pyplot as plt
-# Algorithme de "boosting"
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-# fonction de calcul du précision accuracy_score pour la classification
-from sklearn.metrics import accuracy_score
 # Pour tester tous les hyperparamtres du SVM
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
 
 import JMPStatistiques as jmp
+from AlgoClassification import AlgoClassification
 
+############################################
 # ------- Préparation des données -------- #
+############################################
+
 observations = pnd.read_csv("datas/sonar.all-data.csv")
 print(observations.columns.values)
 # ['0.0200' '0.0371' '0.0428' '0.0207' '0.0954' '0.0986' '0.1539' '0.1601'
@@ -59,8 +56,9 @@ observations['OBJET'] = (observations['OBJET'] == 'M').astype(int)
 print(observations.info())
 # --> manque aucune valeurs
 
-
+####################################
 # ------- Analyse données -------- #
+####################################
 
 # Vérification du nombre de mines et de rochers
 print(observations.groupby("OBJET").size())
@@ -82,7 +80,10 @@ plt.ylabel('Puissancs du signal')
 plt.show()
 # --> les valeurs extrêmes sont les rond noir en dehors des moustaches
 
+####################################################
 # ------- Choix d'un modèle de prédiction -------- #
+####################################################
+
 array = observations.values
 # convertion en type décimal
 X = array[:, 0:-1].astype(float)
@@ -94,41 +95,6 @@ Y = array[:, -1]
 percentage_donnees_test = 0.2
 X_APPRENTISSAGE, X_VALIDATION, Y_APPRENTISSAGE, Y_VALIDATION = train_test_split(X, Y, test_size=percentage_donnees_test,
                                                                                 random_state=42)
-# REGRESSION LOGISTIQUE
-regression_logistique = LogisticRegression()
-regression_logistique.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = regression_logistique.predict(X_VALIDATION)
-print("Regression logistique: " + str(accuracy_score(predictions, Y_VALIDATION)))
-
-# ARBRE DE DECISION
-arbre_decision = DecisionTreeClassifier()
-arbre_decision.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = arbre_decision.predict(X_VALIDATION)
-print("Arbre de décision:  " + str(accuracy_score(predictions, Y_VALIDATION)))
-
-# FORET ALEATOIRES
-foret_aleatoire = RandomForestClassifier()
-foret_aleatoire.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = foret_aleatoire.predict(X_VALIDATION)
-print("Foret aléatoire: " + str(accuracy_score(predictions, Y_VALIDATION)))
-
-# K PLUS PROCHES VOISINS
-knn = KNeighborsClassifier()
-knn.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = knn.predict(X_VALIDATION)
-print("K plus proche voisins: " + str(accuracy_score(predictions, Y_VALIDATION)))
-
-# MACHINE VECTEURS DE SUPPORT
-SVM = SVC(gamma='auto')
-SVM.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = SVM.predict(X_VALIDATION)
-print("Machine vecteurs de support: " + str(accuracy_score(predictions, Y_VALIDATION)))
-
-# Regression logistique: 0.7857142857142857
-# Arbre de décision:  0.5952380952380952
-# Foret aléatoire: 0.8333333333333334
-# K plus proche voisins: 0.8571428571428571
-# Machine vecteurs de support: 0.8333333333333334
 
 # Optimisation du SVM (MACHINE VECTEURS DE SUPPORT)
 # Définition d'une plage de valeurs à tester
@@ -143,20 +109,100 @@ print()
 print(recherche_optimisations.best_params_)
 print()
 # Le meilleur paramètre est : {'C': 35}
+c_opt = recherche_optimisations.best_params_['C']
+algo = AlgoClassification()
+algo.algo_classification(X_APPRENTISSAGE, X_VALIDATION, Y_APPRENTISSAGE, Y_VALIDATION, c_opt)
 
-# MACHINE A VECTEURS DE SUPPORT OPTIMISE
-SVM = SVC(C=35, gamma='auto')
-SVM.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = SVM.predict(X_VALIDATION)
-print("Machine à vecteurs de support optimisé: " + str(accuracy_score(predictions, Y_VALIDATION)))
+# Regression logistique: 0.7857142857142857
+# Arbre de décision:  0.6666666666666666
+# Foret aléatoire: 0.8333333333333334
+# K plus proche voisins: 0.8571428571428571
+# Machine vecteurs de support: 0.8333333333333334
+# GRADIENT BOOSTING: 0.8333333333333334
 # Machine à vecteurs de support optimisé: 0.9047619047619048
 
-# --> Le meilleur algo dans ce cas est le SVM (MACHINE VECTEURS DE SUPPORT)
+#################################################
+# ------- Gestion des données extrêmes -------- #
+#################################################
 
-# Test du gradient boosting pour voir s'il est le meilleur
-gradientBoosting = GradientBoostingClassifier()
-gradientBoosting.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
-predictions = SVM.predict(X_VALIDATION)
-print("GRADIENT BOOSTING: " + str(accuracy_score(predictions, Y_VALIDATION)))
-# --> GRADIENT BOOSTING: 0.9047619047619048
-# Sans optimistaion le RADIENT BOOSTING est le plus efficace
+# Pour chaque caractéristique on cherche les numéros de ligne correspondant
+# a une donnée extreme
+# On crée une liste chargée de contenir les numéros de lignes correspondants
+# a une valeur extreme
+num_lignes = []
+
+# On parcours toutes les 60 caracteristiques
+for caracteristique in observations.columns.tolist():
+    # Pour une caracteristique : calcul des percentile
+    Q1 = np.percentile(observations[caracteristique], 25)
+    Q3 = np.percentile(observations[caracteristique], 75)
+    # Calcul de la borne
+    donnee_extreme = 1.5 * (Q3 - Q1)
+    # Si la donnée est inférieure ou supérieure à la borne on récupere sont numéro de ligne et on l'ajoute à la liste
+    liste_donnees_extremes = observations[(observations[caracteristique] < Q1 - donnee_extreme) | (
+            observations[caracteristique] > Q3 + donnee_extreme)].index
+    num_lignes.extend(liste_donnees_extremes)
+
+# On ordonne la liste par ordre croissant
+num_lignes.sort()
+
+# On crée une liste contenant les numéros de lignes à supprimer
+num_lignes_a_supprimer = []
+
+# On parcours l'ensemble des numéros de lignes
+for ligne in num_lignes:
+    # Pour une ligne, on récupere son numéro
+    num_ligne = ligne
+    # On calcul le nombre de fois où apparait ce numéro de ligne
+    # dans l'ensemble des numeros de lignes
+    nbr_valeurs_extremes = num_lignes.count(num_ligne)
+
+    # Si le nombre d'erreur est supérieur 7 alors on ajoute le numéro de la
+    # ligne à la liste des lignes à supprimer
+    if nbr_valeurs_extremes > 7:
+        num_lignes_a_supprimer.append(num_ligne)
+
+# On supprime les doublons
+num_lignes_a_supprimer = list(set(num_lignes_a_supprimer))
+
+# On supprime ensuite les lignes dans le dataframe
+print(num_lignes_a_supprimer)
+print("Nombre de lignes à supprimer = " + str(len(num_lignes_a_supprimer)))
+observations = observations.drop(num_lignes_a_supprimer, axis=0)
+print()
+
+array = observations.values
+
+# Convertion des données en type decimal
+X = array[:, 0:-1].astype(float)
+
+# On choisi la dernière colonne comme feature de prédiction
+Y = array[:, -1]
+
+# Création des jeux d'apprentissage et de tests
+percentage_donnees_test = 0.2
+X_APPRENTISSAGE, X_VALIDATION, Y_APPRENTISSAGE, Y_VALIDATION = train_test_split(X, Y, test_size=percentage_donnees_test,
+                                                                                random_state=42)
+
+# Définition d'une plage de valeurs à tester
+penalite = [{'C': range(1, 100)}]
+
+# Tests avec 5 échantillon de Validation Croisée
+recherche_optimisations = GridSearchCV(SVC(), penalite, cv=5)
+recherche_optimisations.fit(X_APPRENTISSAGE, Y_APPRENTISSAGE)
+
+print("Le meilleur paramètre est :")
+print()
+print(recherche_optimisations.best_params_)
+print()
+c_opt = recherche_optimisations.best_params_['C']
+algo = AlgoClassification()
+algo.algo_classification(X_APPRENTISSAGE, X_VALIDATION, Y_APPRENTISSAGE, Y_VALIDATION, c_opt)
+
+# Regression logistique: 0.7948717948717948
+# Arbre de décision:  0.7435897435897436
+# Foret aléatoire: 0.9230769230769231
+# K plus proche voisins: 0.7435897435897436
+# Machine vecteurs de support: 0.6666666666666666
+# GRADIENT BOOSTING: 0.6666666666666666
+# Machine à vecteurs de support optimisé: 0.8205128205128205

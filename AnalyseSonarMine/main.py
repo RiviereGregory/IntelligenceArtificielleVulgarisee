@@ -1,4 +1,7 @@
 import pandas as pnd
+from matplotlib import pyplot as plt
+
+import JMPStatistiques as jmp
 
 # ------- Préparation des données -------- #
 observations = pnd.read_csv("datas/sonar.all-data.csv")
@@ -46,3 +49,25 @@ print(observations.info())
 
 
 # ------- Analyse données -------- #
+
+# Vérification du nombre de mines et de rochers
+print(observations.groupby("OBJET").size())
+# 111 Mines et 97 rochers
+
+# Calcul moyenne,ecart type, min , max et quartiles
+print(observations.describe())
+
+# Recherche des valeurs extrêmes à l'aide de la librairie JMPStatistiques
+stats = jmp.JMPStatistiques(observations['F1'])
+stats.analyseFeature()
+
+# Création graph boite moustache
+observations.plot.box(figsize=(20, 10), xticks=[])
+# Info graph
+plt.title('Détection des valeurs extrêmes')
+plt.xlabel('Les 60 frèquences')
+plt.ylabel('Puissancs du signal')
+plt.show()
+# --> les valeurs extrêmes sont les rond noir en dehors des moustaches
+
+# ------- Choix d'un modèle de prédiction -------- #

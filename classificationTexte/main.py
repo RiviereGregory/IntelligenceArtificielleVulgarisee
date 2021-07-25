@@ -1,6 +1,7 @@
 import re
 
 import pandas as pnd
+from nltk.corpus import stopwords
 
 messagesTwitter = pnd.read_csv("datas/rechauffementClimatique.csv", ";")
 
@@ -25,3 +26,14 @@ def normalisation(message):
 
 messagesTwitter["TWEET"] = messagesTwitter["TWEET"].apply(normalisation)
 print(messagesTwitter.head(10))
+
+#############################
+# ------ STOP WORDS ------ #
+##########################
+# Suppression des mots les plus utilisés
+stopWords = stopwords.words('english')
+
+messagesTwitter['TWEET'] = messagesTwitter['TWEET'].apply(
+    lambda message: ' '.join([mot for mot in message.split() if mot not in stopWords]))
+print(messagesTwitter.head(10))
+

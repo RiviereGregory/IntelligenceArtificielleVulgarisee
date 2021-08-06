@@ -4,7 +4,11 @@ import pandas as pnd
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
 messagesTwitter = pnd.read_csv("datas/rechauffementClimatique.csv", ";")
 
@@ -68,3 +72,11 @@ print("Fin de la préparation !")
 ###################################
 X_train, X_test, y_train, y_test = train_test_split(messagesTwitter['TWEET'].values, messagesTwitter['CROYANCE'].values,
                                                     test_size=0.2)
+
+########################################
+# Creation du pipeline d'apprentissage #
+########################################
+
+etapes_apprentissage = Pipeline([('frequence', CountVectorizer()),
+                                 ('tfidf', TfidfTransformer()),
+                                 ('algorithme', MultinomialNB())])

@@ -2,6 +2,8 @@ import re
 
 import pandas as pnd
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.stem.snowball import SnowballStemmer
 
 messagesTwitter = pnd.read_csv("datas/rechauffementClimatique.csv", ";")
 
@@ -14,7 +16,7 @@ print(messagesTwitter.head(100))
 
 ################################
 # ------ NORMALISATION ------ #
-#############################
+##############################
 def normalisation(message):
     message = re.sub('((www\.[^\s]+)|(https?://[^\s]+))', 'URL', message)
     message = re.sub('@[^\s]+', 'USER', message)
@@ -24,16 +26,38 @@ def normalisation(message):
     return message.strip()
 
 
+print("# ------ NORMALISATION ------ #")
 messagesTwitter["TWEET"] = messagesTwitter["TWEET"].apply(normalisation)
 print(messagesTwitter.head(10))
 
 #############################
 # ------ STOP WORDS ------ #
-##########################
+###########################
 # Suppression des mots les plus utilisés
+print("# ------ STOP WORDS ------ #")
 stopWords = stopwords.words('english')
 
 messagesTwitter['TWEET'] = messagesTwitter['TWEET'].apply(
     lambda message: ' '.join([mot for mot in message.split() if mot not in stopWords]))
 print(messagesTwitter.head(10))
 
+#############################
+# ---- Stemmatisation ---- #
+###########################
+print("# ---- Stemmatisation ---- #")
+stemmer = SnowballStemmer('english')
+messagesTwitter['TWEET'] = messagesTwitter['TWEET'].apply(
+    lambda message: ' '.join([stemmer.stem(mot) for mot in message.split(' ')]))
+print(messagesTwitter.head(10))
+
+############################
+# ---- Lemmatization ---- #
+##########################
+print("# ---- Lemmatization ---- #")
+
+lemmatizer = WordNetLemmatizer()
+messagesTwitter['TWEET'] = messagesTwitter['TWEET'].apply(
+    lambda message: ' '.join([lemmatizer.lemmatize(mot) for mot in message.split(' ')]))
+print(messagesTwitter.head(10))
+
+print("Fin de la préparation !")

@@ -4,6 +4,7 @@ import pandas as pnd
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
+from sklearn.model_selection import train_test_split
 
 messagesTwitter = pnd.read_csv("datas/rechauffementClimatique.csv", ";")
 
@@ -61,3 +62,9 @@ messagesTwitter['TWEET'] = messagesTwitter['TWEET'].apply(
 print(messagesTwitter.head(10))
 
 print("Fin de la préparation !")
+
+###################################
+# Jeux d'apprentissage et de test #
+###################################
+X_train, X_test, y_train, y_test = train_test_split(messagesTwitter['TWEET'].values, messagesTwitter['CROYANCE'].values,
+                                                    test_size=0.2)

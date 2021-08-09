@@ -155,3 +155,19 @@ parametresC = {'algorithme__C': (1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12)}
 rechercheCOptimal = GridSearchCV(etapes_apprentissage, parametresC, cv=2)
 rechercheCOptimal.fit(X_train, y_train)
 print(rechercheCOptimal.best_params_)
+
+# 4 utilisation du nouveau Paramètre C=1
+etapes_apprentissage = Pipeline([('frequence', CountVectorizer()),
+                                 ('tfidf', TfidfTransformer()),
+                                 ('algorithme', svm.SVC(kernel='linear', C=1))])
+
+modele = etapes_apprentissage.fit(X_train, y_train)
+print(classification_report(y_test, modele.predict(X_test), digits=4))
+
+#               precision    recall  f1-score   support
+#            0     0.7151    0.5775    0.6390       213
+#            1     0.8663    0.9225    0.8935       632
+#     accuracy                         0.8355       845
+#    macro avg     0.7907    0.7500    0.7662       845
+# weighted avg     0.8282    0.8355    0.8293       845
+# Précision de la classification de 82%

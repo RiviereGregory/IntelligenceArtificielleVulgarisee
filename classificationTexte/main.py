@@ -173,3 +173,6 @@ print(classification_report(y_test, modele.predict(X_test), digits=4))
 # Précision de la classification de 82%
 
 # ICI l'optimisation ne donne pas de meillieur résultat
+
+# Conclusion le SVM est plus performant mais la Naive de Bayes offre de bon résultat pour un cout moindre
+# On privilégira donc la Naives de Bayes

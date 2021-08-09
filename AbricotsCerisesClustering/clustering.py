@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pnd
 from joblib import load
 from sklearn.cluster import KMeans
+from sklearn import mixture
 
 ################################
 # ------- VISUALISTION ------- #
@@ -72,3 +73,28 @@ abricot = [[55.7, 102.16]]
 numCluster = modele_load.predict(abricot)
 print("Numero de cluster des abricots: " + str(numCluster))
 prediction(numCluster)
+
+############################################
+# -- Modele de mélanges Gaussiens (GMM) -- #
+############################################
+# Pour ne pas avoir l'erreur de classification des abricot trop petit
+
+# Détermination des clusters (2 à trouver)
+gmm = mixture.GaussianMixture(n_components=2)
+
+# Apprentissage
+gmm.fit(fruits)
+
+# Classification
+clusters = gmm.predict(fruits)
+
+# Affichage des clusters
+plt.scatter(fruits.DIAMETRE, fruits.POIDS, c=clusters, s=40, cmap='viridis');
+plt.xlabel("DIAMETRE")
+plt.ylabel("POIDS")
+plt.show()
+
+# Sauvegarde du modèle ( A décommenter si besoin)
+# from joblib import dump
+#
+# dump(gmm, 'modeles/gmm.joblib')

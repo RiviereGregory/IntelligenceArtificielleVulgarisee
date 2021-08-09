@@ -6,6 +6,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -76,7 +77,52 @@ X_train, X_test, y_train, y_test = train_test_split(messagesTwitter['TWEET'].val
 ########################################
 # Creation du pipeline d'apprentissage #
 ########################################
-
+# CountVectorizer --> matrice des occurences des différents mots dans les différentes phrases.
+# TF-IDF --> faible si le mot présent dans beaucoup de phrase
+# TF-IDF --> faible si le mot peu présent dans la phrase
+# TF-IDF --> fort si le mot peu présent dans la phrase et dans beaucoup de message
 etapes_apprentissage = Pipeline([('frequence', CountVectorizer()),
                                  ('tfidf', TfidfTransformer()),
                                  ('algorithme', MultinomialNB())])
+
+#######################################
+# ------ Phase d'apprentissage ------ #
+#######################################
+print("Phase d'apprentissage")
+modele = etapes_apprentissage.fit(X_train, y_train)
+print(classification_report(y_test, modele.predict(X_test), digits=4))
+#               precision    recall  f1-score   support
+#            0     0.8171    0.2900    0.4281       231
+#            1     0.7851    0.9756    0.8700       614
+#     accuracy                         0.7882       845
+#    macro avg     0.8011    0.6328    0.6491       845
+# weighted avg     0.7938    0.7882    0.7492       845
+# Précision de la classification de 79%
+
+
+#################################
+# ------ Nouvelle Phrase ------ #
+#################################
+phrase = "Why should trust scientists with global warming if they didnt know Pluto wasnt a planet"
+print(phrase)
+
+# 1 Normalisation
+phrase = normalisation(phrase)
+
+# 2 Suppression des stops words
+phrase = ' '.join([mot for mot in phrase.split() if mot not in (stopWords)])
+
+# 3 Stemmatization
+phrase = ' '.join([stemmer.stem(mot) for mot in phrase.split(' ')])
+
+# 4 Lemmitization
+phrase = ' '.join([lemmatizer.lemmatize(mot) for mot in phrase.split(' ')])
+print(phrase)
+
+# 5 prédiction
+prediction = modele.predict([phrase])
+print(prediction[0])
+if prediction[0] == 0:
+    print(">> Ne croit pas au rechauffement climatique...")
+else:
+    print(">> Croit au rechauffement climatique...")

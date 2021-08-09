@@ -4,6 +4,7 @@ import pandas as pnd
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.snowball import SnowballStemmer
+from sklearn import svm
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics import classification_report
@@ -110,7 +111,7 @@ print(phrase)
 phrase = normalisation(phrase)
 
 # 2 Suppression des stops words
-phrase = ' '.join([mot for mot in phrase.split() if mot not in (stopWords)])
+phrase = ' '.join([mot for mot in phrase.split() if mot not in stopWords])
 
 # 3 Stemmatization
 phrase = ' '.join([stemmer.stem(mot) for mot in phrase.split(' ')])
@@ -126,3 +127,23 @@ if prediction[0] == 0:
     print(">> Ne croit pas au rechauffement climatique...")
 else:
     print(">> Croit au rechauffement climatique...")
+
+####################################
+# ------ Utilisation de SVM ------ #
+####################################
+# 1 Pipeline
+etapes_apprentissage = Pipeline([('frequence', CountVectorizer()),
+                                 ('tfidf', TfidfTransformer()),
+                                 ('algorithme', svm.SVC(kernel='linear', C=2))])
+
+# 2 Apprentissage
+modele_svms = etapes_apprentissage.fit(X_train, y_train)
+
+print(classification_report(y_test, modele_svms.predict(X_test), digits=4))
+#               precision    recall  f1-score   support
+#            0     0.7043    0.6150    0.6566       213
+#            1     0.8756    0.9130    0.8939       632
+#     accuracy                         0.8379       845
+#    macro avg     0.7899    0.7640    0.7753       845
+# weighted avg     0.8324    0.8379    0.8341       845
+# Précision de la classification de 83%

@@ -171,3 +171,5 @@ print(classification_report(y_test, modele.predict(X_test), digits=4))
 #    macro avg     0.7907    0.7500    0.7662       845
 # weighted avg     0.8282    0.8355    0.8293       845
 # Précision de la classification de 82%
+
+# ICI l'optimisation ne donne pas de meillieur résultat

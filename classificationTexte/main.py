@@ -8,6 +8,7 @@ from sklearn import svm
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -147,3 +148,10 @@ print(classification_report(y_test, modele_svms.predict(X_test), digits=4))
 #    macro avg     0.7899    0.7640    0.7753       845
 # weighted avg     0.8324    0.8379    0.8341       845
 # Précision de la classification de 83%
+
+# 3 Recherche du meilleur paramètre C
+parametresC = {'algorithme__C': (1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12)}
+
+rechercheCOptimal = GridSearchCV(etapes_apprentissage, parametresC, cv=2)
+rechercheCOptimal.fit(X_train, y_train)
+print(rechercheCOptimal.best_params_)

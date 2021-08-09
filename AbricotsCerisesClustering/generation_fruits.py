@@ -19,7 +19,11 @@ caracteristiquesCerises = [[17, 19, 1, 5], [20, 21, 5, 6], [22, 23, 6, 7], [24, 
 
 # ABRICOTS
 # [diam min, diam max, poids moy]
-caracteristiquesAbricots = [[40, 44, 41], [45, 49, 54], [50, 54, 74], [55, 59, 100]]
+# Cas 1 :
+# caracteristiquesAbricots = [[40, 44, 41], [45, 49, 54], [50, 54, 74], [55, 59, 100]]
+
+# Cas 2 :
+caracteristiquesAbricots = [[35,39,27],[40,44,41],[45,49,54],[50,54,74],[55,59,100]]
 
 ####################################
 # ---- GENERATION DES DONNEES ---- #

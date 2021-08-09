@@ -3,6 +3,7 @@
 ####################################
 import matplotlib.pyplot as plt
 import pandas as pnd
+from joblib import load
 from sklearn.cluster import KMeans
 
 ################################
@@ -38,7 +39,36 @@ centers = modele.cluster_centers_
 plt.scatter(centers[:, 0], centers[:, 1], c='black', s=200, alpha=0.5)
 plt.show()
 
+
 # Sauvegarde du modèle ( A décommenter si besoin)
 # from joblib import dump
 #
 # dump(modele, 'modeles/kmean.joblib')
+
+########################################
+# -- Realisation de classifications -- #
+########################################
+# fonction
+def prediction(num_cluster):
+    if int(num_cluster) == 0:
+        print("C'est un abricot !")
+    else:
+        print("C'est une cerise ! ")
+
+
+# chargement du modèle
+modele_load = load('modeles/kmean.joblib')
+
+# données test
+# CERISE: 26.98 mm de diametre ,8.75 grammes
+# ABRICOT: 55.7  mm de diametre , 102.16 grammes
+
+cerise = [[26.98, 8.75]]
+numCluster = modele_load.predict(cerise)
+print("Numero de cluster des cerises: " + str(numCluster))
+prediction(numCluster)
+
+abricot = [[55.7, 102.16]]
+numCluster = modele_load.predict(abricot)
+print("Numero de cluster des abricots: " + str(numCluster))
+prediction(numCluster)

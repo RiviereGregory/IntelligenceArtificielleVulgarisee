@@ -12,3 +12,4 @@
 **ch13 La classification d'images**  
 **ch14 Votre ordinateur sait lire !**  
 **ch15 Hommage au premier ChatBot**  
+

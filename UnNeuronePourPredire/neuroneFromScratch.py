@@ -36,6 +36,9 @@ w31 = (borneMax - borneMin) * random.random() + borneMin
 biais = 1
 wb = 0
 
+# Stockage des poids initiaux, uniquement pour affichage à la fin de l'apprentissage
+poids = [w11, w21, w31, wb]
+
 # Taux d'apprentissage
 txApprentissage = 0.1
 
@@ -154,3 +157,44 @@ for epoch in range(0, epochs):
 plt.plot(Graphique_MSE)
 plt.ylabel('MSE')
 plt.show()
+
+# --------------------------------------
+#    PREDICTION
+# --------------------------------------
+
+print()
+print()
+print("Apprentissage terminé !")
+print("Poid initiaux: ")
+print("W11 = " + str(poids[0]))
+print("W21 = " + str(poids[1]))
+print("Wb = " + str(poids[3]))
+
+print("Poid finaux: ")
+print("W11 = " + str(w11))
+print("W21 = " + str(w21))
+print("Wb = " + str(wb))
+
+print()
+print("--------------------------")
+print("PREDICTION ")
+print("--------------------------")
+
+
+def prediction(entre1, entre2):
+    global valeur_somme_ponderee, valeur_predite
+    # Etape 1 : Calcul de la somme ponderee
+    valeur_somme_ponderee = somme_ponderee(entre1, w11, entre2, w21, biais, wb)
+    # Etape 2 : Application de la fonction d'activation
+    valeur_predite = fonction_activation_sigmoide(valeur_somme_ponderee)
+    print("Prediction du [" + str(entre1) + "," + str(entre2) + "]")
+    print("Prediction = " + str(valeur_predite))
+
+
+prediction(0, 1)
+prediction(1, 1)
+
+# Prediction du [0,1]
+# Prediction = 0.0093112138631844
+# Prediction du [1,1]
+# Prediction = 0.988972851752988

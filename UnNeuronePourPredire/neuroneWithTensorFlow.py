@@ -83,3 +83,17 @@ for i in range(epochs):
 plt.plot(Graphique_MSE)
 plt.ylabel('MSE')
 plt.show()
+
+print("--- VERIFICATIONS ----")
+
+for i in range(0, 4):
+    print("Observation:" + str(valeurs_entrees_X[i]) + " - Attendu: " + str(
+        valeurs_a_predire_Y[i]) + " - Prediction: " + str(
+        session.run(prediction, feed_dict={tf_neurones_entrees_X: [valeurs_entrees_X[i]]})))
+
+# Observation:[1.0, 0.0] - Attendu: [0.0] - Prediction: [[0.03818363]]
+# Observation:[1.0, 1.0] - Attendu: [1.0] - Prediction: [[0.9546436]]
+# Observation:[0.0, 1.0] - Attendu: [0.0] - Prediction: [[0.03818363]]
+# Observation:[0.0, 0.0] - Attendu: [0.0] - Prediction: [[7.488039e-05]]
+
+session.close()

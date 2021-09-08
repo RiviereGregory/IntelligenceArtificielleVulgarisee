@@ -1,5 +1,6 @@
 from math import exp
 
+import matplotlib.pyplot as plt
 from numpy import array, random
 
 # -------------------------------------
@@ -39,7 +40,7 @@ wb = 0
 txApprentissage = 0.1
 
 # Nombres d'epoques
-epochs = 300
+epochs = 300000
 
 
 # --------------------------------------
@@ -85,6 +86,11 @@ def calcul_mse(predictions_realisees, f_predictions_attendues):
     moyenne_quadratique = 1 / (len(f_predictions_attendues)) * somme
     return moyenne_quadratique
 
+
+# --------------------------------------
+#    GRAPHIQUE
+# --------------------------------------
+Graphique_MSE = []
 
 # --------------------------------------
 #    APPRENTISSAGE
@@ -139,4 +145,12 @@ for epoch in range(0, epochs):
         numObservation = numObservation + 1
 
     MSE = calcul_mse(predictions_realisees_durant_epoch, predictions)
+    Graphique_MSE.append(MSE[0])
     print("MSE : " + str(MSE))
+
+# --------------------------------------
+#    GRAPHIQUE
+# --------------------------------------
+plt.plot(Graphique_MSE)
+plt.ylabel('MSE')
+plt.show()

@@ -7,8 +7,10 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import shuffle
 
 # Mettre en cas de RuntimeError: tf.placeholder() is not compatible with eager execution.
-NB_NEURONES_CACHES = 12
 tf.disable_v2_behavior()
+# Test avec le nb de neurones du réseau + 2 divisé par 2 pour avoir le mielleur résultat
+# (60+2)/2
+NB_NEURONES_CACHES = 31
 
 # ---------------------------------------------
 # CHARGEMENT DES OBSERVATIONS
@@ -59,7 +61,7 @@ train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.07, random
 # PARAMETRAGE DU RESEAU DE  NEURONES
 # ---------------------------------------------
 
-epochs = 300
+epochs = 600
 nombre_neurones_entree = 60
 nombre_neurones_sortie = 2
 taux_apprentissage = 0.01
@@ -294,5 +296,26 @@ print("Précision sur l'ensemble des données = " + str((nb_bonnes_classificatio
 # Précision sur les donnees de tests = 80.0%
 # Précision sur les donnees d'apprentissage = 80.20833333333334%
 # Précision sur l'ensemble des données = 80.19323671497585%
+
+# Pour 31 Neurones et 600 epoch
+# 0 Classe attendue:  1  Classification:  1
+# 1 Classe attendue:  0  Classification:  0
+# 2 Classe attendue:  1  Classification:  1
+# 3 Classe attendue:  1  Classification:  1
+# 4 Classe attendue:  0  Classification:  0
+# 5 Classe attendue:  1  Classification:  1
+# 6 Classe attendue:  0  Classification:  0
+# 7 Classe attendue:  1  Classification:  1
+# 8 Classe attendue:  1  Classification:  1
+# 9 Classe attendue:  0  Classification:  0
+# 10 Classe attendue:  0  Classification:  0
+# 11 Classe attendue:  0  Classification:  0
+# 12 Classe attendue:  0  Classification:  0
+# 13 Classe attendue:  0  Classification:  0
+# 14 Classe attendue:  0  Classification:  1
+# -------------
+# Précision sur les donnees de tests = 93.33333333333333%
+# Précision sur les donnees d'apprentissage = 86.97916666666666%
+# Précision sur l'ensemble des données = 87.43961352657004%
 
 session.close()

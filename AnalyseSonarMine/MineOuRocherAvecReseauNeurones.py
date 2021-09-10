@@ -7,6 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import shuffle
 
 # Mettre en cas de RuntimeError: tf.placeholder() is not compatible with eager execution.
+NB_NEURONES_CACHES = 12
 tf.disable_v2_behavior()
 
 # ---------------------------------------------
@@ -71,15 +72,17 @@ tf_valeurs_reelles_Y = tf.placeholder(tf.float32, [None, 2])
 
 poids = {
     # 60 neurones d'entrées vers 24 Neurones de la couche cachée
-    'couche_entree_vers_cachee': tf.Variable(tf.random_uniform([60, 24], minval=-0.3, maxval=0.3), tf.float32),
+    'couche_entree_vers_cachee': tf.Variable(tf.random_uniform([60, NB_NEURONES_CACHES], minval=-0.3, maxval=0.3),
+                                             tf.float32),
 
     # 24 neurones de la couche cachée vers 2 de la couche de sortie
-    'couche_cachee_vers_sortie': tf.Variable(tf.random_uniform([24, 2], minval=-0.3, maxval=0.3), tf.float32),
+    'couche_cachee_vers_sortie': tf.Variable(tf.random_uniform([NB_NEURONES_CACHES, 2], minval=-0.3, maxval=0.3),
+                                             tf.float32),
 }
 
 poids_biais = {
     # 1 biais de la couche d'entrée vers les 24 neurones de la couche cachée
-    'poids_biais_couche_entree_vers_cachee': tf.Variable(tf.zeros([24]), tf.float32),
+    'poids_biais_couche_entree_vers_cachee': tf.Variable(tf.zeros([NB_NEURONES_CACHES]), tf.float32),
 
     # 1 biais de la couche cachée vers les 2 neurones de la couche de sortie
     'poids_biais_couche_cachee_vers_sortie': tf.Variable(tf.zeros([2]), tf.float32),
@@ -250,6 +253,7 @@ for i in range(0, 207):
 
 print("Précision sur l'ensemble des données = " + str((nb_bonnes_classifications / nb_classifications) * 100) + "%")
 
+# Pour 24 Neurones
 # 0 Classe attendue:  1  Classification:  1
 # 1 Classe attendue:  0  Classification:  0
 # 2 Classe attendue:  1  Classification:  1
@@ -270,5 +274,25 @@ print("Précision sur l'ensemble des données = " + str((nb_bonnes_classificatio
 # Précision sur les donnees d'apprentissage = 79.6875%
 # Précision sur l'ensemble des données = 80.67632850241546%
 
+# Pour 12 Neurones
+# 0 Classe attendue:  1  Classification:  1
+# 1 Classe attendue:  0  Classification:  0
+# 2 Classe attendue:  1  Classification:  1
+# 3 Classe attendue:  1  Classification:  0
+# 4 Classe attendue:  0  Classification:  0
+# 5 Classe attendue:  1  Classification:  1
+# 6 Classe attendue:  0  Classification:  0
+# 7 Classe attendue:  1  Classification:  0
+# 8 Classe attendue:  1  Classification:  0
+# 9 Classe attendue:  0  Classification:  0
+# 10 Classe attendue:  0  Classification:  0
+# 11 Classe attendue:  0  Classification:  0
+# 12 Classe attendue:  0  Classification:  0
+# 13 Classe attendue:  0  Classification:  0
+# 14 Classe attendue:  0  Classification:  0
+# -------------
+# Précision sur les donnees de tests = 80.0%
+# Précision sur les donnees d'apprentissage = 80.20833333333334%
+# Précision sur l'ensemble des données = 80.19323671497585%
 
 session.close()

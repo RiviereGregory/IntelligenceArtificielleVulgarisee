@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pnd
 import tensorflow.compat.v1 as tf
@@ -117,3 +118,34 @@ fonction_erreur = tf.reduce_sum(tf.pow(tf_valeurs_reelles_Y - reseau, 2))
 
 # Descente de gradient avec un taux d'apprentissage fixé à 0.1
 optimiseur = tf.train.GradientDescentOptimizer(learning_rate=taux_apprentissage).minimize(fonction_erreur)
+
+# ---------------------------------------------
+# APPRENTISSAGE
+# ---------------------------------------------
+
+# Initialisation des variable
+init = tf.global_variables_initializer()
+
+# Demarrage d'une session d'apprentissage
+session = tf.Session()
+session.run(init)
+
+# Pour la réalisation du graphique pour la MSE
+Graphique_MSE = []
+
+# Pour chaque epoch
+for i in range(epochs):
+    # Realisation de l'apprentissage avec mise à jour des poids
+    session.run(optimiseur, feed_dict={tf_neurones_entrees_X: train_x, tf_valeurs_reelles_Y: train_y})
+
+    # Calculer l'erreur
+    MSE = session.run(fonction_erreur, feed_dict={tf_neurones_entrees_X: train_x, tf_valeurs_reelles_Y: train_y})
+
+    # Affichage des informations
+    Graphique_MSE.append(MSE)
+    print("EPOCH (" + str(i) + "/" + str(epochs) + ") -  MSE: " + str(MSE))
+
+# Affichage graphique
+plt.plot(Graphique_MSE)
+plt.ylabel('MSE')
+plt.show()

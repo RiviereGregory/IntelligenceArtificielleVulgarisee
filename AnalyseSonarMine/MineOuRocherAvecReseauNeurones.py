@@ -149,3 +149,126 @@ for i in range(epochs):
 plt.plot(Graphique_MSE)
 plt.ylabel('MSE')
 plt.show()
+
+# ---------------------------------------------
+# VERIFICATION DE L'APPRENTISSAGE
+# ---------------------------------------------
+
+# Les probabilités de chaque classe 'Mine' ou 'rocher' issues de l'apprentissage sont stockée dans le modèle.
+# A l'aide de tf.argmax, on récupére les indexs des probabilités les plus elevées pour chaque observations
+# Ex: Si pour une observation nous avons [0.56, 0.89] renverra 1 car la valeur la plus élevée se trouve à l'index 1
+# Ex : Si pour une observation nous avons [0.90, 0.34 ]  renverra 0 car la valeur la plus élevée se trouve à l'index 0
+classifications = tf.argmax(reseau, 1)
+
+# Dans le tableau des valeurs réelles :
+# Les mines sont encodées comme suit [1,0] l'index ayant la plus grande valeur est 0
+# Les rochers ont pour valeur [0,1] sl'index ayant la plus grande valeur est 1
+
+# Si la classification est de [0.90, 0.34 ] l'index ayant la plus grande valeur est 0
+# Si c'est une mine [1,0] l'index ayant la plus grande valeur est 0
+# Si les deux index sont identiques alors on peut affirmer que c'est une bonne classification
+formule_calcul_bonnes_classifications = tf.equal(classifications, tf.argmax(tf_valeurs_reelles_Y, 1))
+
+# La précision se calcul en faisant la moyenne (tf.mean)
+# des bonnes classifications (aprés les avoir converties en décimale tf.cast, tf.float32)
+formule_precision = tf.reduce_mean(tf.cast(formule_calcul_bonnes_classifications, tf.float32))
+
+# -------------------------------------------------------------------------
+# PRECISION SUR LES DONNEES DE TESTS
+# -------------------------------------------------------------------------
+
+nb_classifications = 0
+nb_bonnes_classifications = 0
+
+# On parcours l'ensemble des données de test (text_x)
+for i in range(0, test_x.shape[0]):
+
+    # On récupere les informations
+    donneesSonar = test_x[i].reshape(1, 60)
+    classificationAttendue = test_y[i].reshape(1, 2)
+
+    # On réalise la classification
+    prediction_run = session.run(classifications, feed_dict={tf_neurones_entrees_X: donneesSonar})
+
+    # On calcule la précision de la classification à l'aide de la formule établie auparavant
+    accuracy_run = session.run(formule_precision, feed_dict={tf_neurones_entrees_X: donneesSonar,
+                                                             tf_valeurs_reelles_Y: classificationAttendue})
+
+    # On affiche pour observation la classe originale et la classification réalisée
+    print(i, "Classe attendue: ",
+          int(session.run(tf_valeurs_reelles_Y[i][1], feed_dict={tf_valeurs_reelles_Y: test_y})), " Classification: ",
+          prediction_run[0])
+
+    nb_classifications = nb_classifications + 1
+    if accuracy_run * 100 == 100:
+        nb_bonnes_classifications = nb_bonnes_classifications + 1
+
+print("-------------")
+print("Précision sur les donnees de tests = " + str((nb_bonnes_classifications / nb_classifications) * 100) + "%")
+
+# -------------------------------------------------------------------------
+# PRECISION SUR LES DONNEES D'APPRENTISSAGE
+# -------------------------------------------------------------------------
+
+nb_classifications = 0
+nb_bonnes_classifications = 0
+for i in range(0, train_x.shape[0]):
+
+    # On récupere les informations
+    donneesSonar = train_x[i].reshape(1, 60)
+    classificationAttendue = train_y[i].reshape(1, 2)
+
+    # On réalise la classification
+    prediction_run = session.run(classifications, feed_dict={tf_neurones_entrees_X: donneesSonar})
+
+    # On calcule la précision de la classification à l'aide de la formule établie auparavant
+    accuracy_run = session.run(formule_precision, feed_dict={tf_neurones_entrees_X: donneesSonar,
+                                                             tf_valeurs_reelles_Y: classificationAttendue})
+
+    nb_classifications = nb_classifications + 1
+    if accuracy_run * 100 == 100:
+        nb_bonnes_classifications = nb_bonnes_classifications + 1
+
+print(
+    "Précision sur les donnees d'apprentissage = " + str((nb_bonnes_classifications / nb_classifications) * 100) + "%")
+
+# -------------------------------------------------------------------------
+# PRECISION SUR L'ENSEMBLE DES DONNEES
+# -------------------------------------------------------------------------
+
+nb_classifications = 0
+nb_bonnes_classifications = 0
+for i in range(0, 207):
+
+    prediction_run = session.run(classifications, feed_dict={tf_neurones_entrees_X: X[i].reshape(1, 60)})
+    accuracy_run = session.run(formule_precision, feed_dict={tf_neurones_entrees_X: X[i].reshape(1, 60),
+                                                             tf_valeurs_reelles_Y: Y[i].reshape(1, 2)})
+
+    nb_classifications = nb_classifications + 1
+    if accuracy_run * 100 == 100:
+        nb_bonnes_classifications = nb_bonnes_classifications + 1
+
+print("Précision sur l'ensemble des données = " + str((nb_bonnes_classifications / nb_classifications) * 100) + "%")
+
+# 0 Classe attendue:  1  Classification:  1
+# 1 Classe attendue:  0  Classification:  0
+# 2 Classe attendue:  1  Classification:  1
+# 3 Classe attendue:  1  Classification:  1
+# 4 Classe attendue:  0  Classification:  0
+# 5 Classe attendue:  1  Classification:  1
+# 6 Classe attendue:  0  Classification:  0
+# 7 Classe attendue:  1  Classification:  1
+# 8 Classe attendue:  1  Classification:  1
+# 9 Classe attendue:  0  Classification:  0
+# 10 Classe attendue:  0  Classification:  0
+# 11 Classe attendue:  0  Classification:  0
+# 12 Classe attendue:  0  Classification:  0
+# 13 Classe attendue:  0  Classification:  0
+# 14 Classe attendue:  0  Classification:  1
+# -------------
+# Précision sur les donnees de tests = 93.33333333333333%
+# Précision sur les donnees d'apprentissage = 79.6875%
+# Précision sur l'ensemble des données = 80.67632850241546%
+
+
+session.close()

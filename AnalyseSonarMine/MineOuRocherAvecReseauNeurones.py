@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pnd
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import shuffle
 
 # ---------------------------------------------
 # CHARGEMENT DES OBSERVATIONS
@@ -36,3 +38,13 @@ Y = one_hot_encode
 # Verification en prenant les enregistrement 0 et 97
 print("Classe Rocher:", int(Y[0][1]))
 print("Classe Mine :", int(Y[97][1]))
+
+# ---------------------------------------------
+# CREATION DES JEUX D'APPRENTISSAGE ET DE TEST
+# ---------------------------------------------
+
+# On mélange les observations
+X, Y = shuffle(X, Y, random_state=1)
+
+# Creation des jeux d'apprentissage et de tests
+train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.07, random_state=42)

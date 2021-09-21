@@ -1,7 +1,11 @@
+import tensorflow.keras as keras
 import numpy as np
 import pandas as pnd
 from sklearn.model_selection import train_test_split
-# from matplotlib import pyplot as plt
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.models import Sequential
+from matplotlib import pyplot as plt
 from tensorflow.keras.utils import to_categorical
 
 # Définition de la longueur et de la largeur de l'image
@@ -45,3 +49,73 @@ y_test = to_categorical(np.array(observations_test.iloc[:, 0]))
 X_test = X_test.reshape(X_test.shape[0], LARGEUR_IMAGE, LONGUEUR_IMAGE, 1)
 X_test = X_test.astype('float32')
 X_test /= 255
+
+# ----------------------- CNN 1 ------------------------
+
+# On spécifie les dimensions de l'image d'entree
+dimentionImage = (LARGEUR_IMAGE, LONGUEUR_IMAGE, 1)
+
+# On crée le réseau de neurones couche par couche
+reseauNeurone1Convolution = Sequential()
+
+# 1- Ajout de la couche de convolution comportant
+#  Couche cachée de 32 neurones
+#  Un filtre de 3x3 (Kernel) parourant l'image
+#  Une fonction d'activation de type ReLU (Rectified Linear Activation)
+#  Une image d'entrée de 28px * 28 px
+reseauNeurone1Convolution.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=dimentionImage))
+
+# 2- Définition de la fonction de pooling avec un filtre de 2px sur 2 px
+reseauNeurone1Convolution.add(MaxPooling2D(pool_size=(2, 2)))
+
+# 3- Ajout d'une fonction d'ignorance (ignorer certains neurones pour éviter le surapprentissage)
+reseauNeurone1Convolution.add(Dropout(0.2))
+
+# 4 - On transforme en une seule ligne
+reseauNeurone1Convolution.add(Flatten())
+
+# 5 - Ajout d'un reseau de neuronne composé de 128 neurones avec une fonction d'activation de type Relu
+reseauNeurone1Convolution.add(Dense(128, activation='relu'))
+
+# 6 - Ajout d'un reseau de neuronne composé de 10 neurones avec une fonction d'activation de type softmax
+reseauNeurone1Convolution.add(Dense(10, activation='softmax'))
+
+# 7 - Compilation du modèle
+reseauNeurone1Convolution.compile(loss=keras.losses.categorical_crossentropy,
+                                  optimizer=keras.optimizers.Adam(),
+                                  metrics=['accuracy'])
+
+# 8 - Apprentissage
+historique_apprentissage = reseauNeurone1Convolution.fit(X_apprentissage, y_apprentissage,
+                                                         batch_size=256,
+                                                         epochs=10,
+                                                         verbose=1,
+                                                         validation_data=(X_validation, y_validation))
+
+# 9 - Evaluation du modèle
+evaluation = reseauNeurone1Convolution.evaluate(X_test, y_test, verbose=0)
+print('Erreur :', evaluation[0])
+print('Précision:', evaluation[1])
+
+# Erreur : 0.23621676862239838
+# Précision: 0.9157999753952026
+
+# 10 - Visualisation de la phase d'apprentissage
+
+# Données de précision (accurary)
+plt.plot(historique_apprentissage.history['accuracy'])
+plt.plot(historique_apprentissage.history['val_accuracy'])
+plt.title('Précision du modèle')
+plt.ylabel('Précision')
+plt.xlabel('Epoch')
+plt.legend(['Apprentissage', 'Test'], loc='upper left')
+plt.show()
+
+# Données de validation et erreur
+plt.plot(historique_apprentissage.history['loss'])
+plt.plot(historique_apprentissage.history['val_loss'])
+plt.title('Erreur')
+plt.ylabel('Erreur')
+plt.xlabel('Epoch')
+plt.legend(['Apprentissage', 'Test'], loc='upper left')
+plt.show()

@@ -35,3 +35,13 @@ X_apprentissage /= 255
 X_validation = X_validation.reshape(X_validation.shape[0], LARGEUR_IMAGE, LONGUEUR_IMAGE, 1)
 X_validation = X_validation.astype('float32')
 X_validation /= 255
+
+# Preparation des données de test
+observations_test = pnd.read_csv('datas/fashion-mnist_test.csv')
+
+X_test = np.array(observations_test.iloc[:, 1:])
+y_test = to_categorical(np.array(observations_test.iloc[:, 0]))
+
+X_test = X_test.reshape(X_test.shape[0], LARGEUR_IMAGE, LONGUEUR_IMAGE, 1)
+X_test = X_test.astype('float32')
+X_test /= 255

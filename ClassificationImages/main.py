@@ -1,10 +1,12 @@
+import time
+
 import numpy as np
 import pandas as pnd
 import tensorflow.keras as keras
 from keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization
 from tensorflow.keras.layers import Dense, Dropout, Flatten
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import to_categorical
@@ -157,3 +159,58 @@ with open("modele/modele.json", "w") as json_file:
 # serialize weights to HDF5
 reseauNeurone1Convolution.save_weights("modele/modele.h5")
 print("Modèle sauvegardé !")
+
+# Modèles plus performant
+reseauNeurones4Convolution = Sequential()
+reseauNeurones4Convolution.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=dimentionImage))
+reseauNeurones4Convolution.add(BatchNormalization())
+
+reseauNeurones4Convolution.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+reseauNeurones4Convolution.add(BatchNormalization())
+reseauNeurones4Convolution.add(MaxPooling2D(pool_size=(2, 2)))
+reseauNeurones4Convolution.add(Dropout(0.25))
+
+reseauNeurones4Convolution.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+reseauNeurones4Convolution.add(BatchNormalization())
+reseauNeurones4Convolution.add(Dropout(0.25))
+
+reseauNeurones4Convolution.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+reseauNeurones4Convolution.add(BatchNormalization())
+reseauNeurones4Convolution.add(MaxPooling2D(pool_size=(2, 2)))
+reseauNeurones4Convolution.add(Dropout(0.25))
+
+reseauNeurones4Convolution.add(Flatten())
+
+reseauNeurones4Convolution.add(Dense(512, activation='relu'))
+reseauNeurones4Convolution.add(BatchNormalization())
+reseauNeurones4Convolution.add(Dropout(0.5))
+
+reseauNeurones4Convolution.add(Dense(128, activation='relu'))
+reseauNeurones4Convolution.add(BatchNormalization())
+reseauNeurones4Convolution.add(Dropout(0.5))
+
+reseauNeurones4Convolution.add(Dense(10, activation='softmax'))
+
+# Compilation du modèle
+reseauNeurones4Convolution.compile(loss=keras.losses.categorical_crossentropy,
+                                   optimizer=keras.optimizers.Adam(),
+                                   metrics=['accuracy'])
+
+# Apprentissage
+start = time.perf_counter()
+historique_apprentissage = reseauNeurones4Convolution.fit_generator(nouvelles_images_apprentissage,
+                                                                    steps_per_epoch=48000 // 256,
+                                                                    epochs=50,
+                                                                    validation_data=nouvelles_images_validation,
+                                                                    validation_steps=12000 // 256,
+                                                                    use_multiprocessing=False,
+                                                                    verbose=1)
+
+stop = time.perf_counter()
+
+print("Temps d'apprentissage = " + str(stop - start))
+
+# 11 - Evaluation du modèle
+evaluation = reseauNeurones4Convolution.evaluate(X_test, y_test, verbose=0)
+print('Erreur :', evaluation[0])
+print('Précision:', evaluation[1])

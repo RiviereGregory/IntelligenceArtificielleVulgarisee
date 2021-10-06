@@ -1,6 +1,11 @@
+import tensorflow.keras as keras
 import numpy as np
 from matplotlib import pyplot as plt
 from mnist import MNIST
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.models import Sequential
 
 # Chargement des images
 emnist_data = MNIST(path='datas\\', return_type='numpy')
@@ -38,3 +43,83 @@ Libelles = Libelles - 1
 
 print("Libellé de l'image N°70000...")
 print(Libelles[70000])
+
+# Création des jeux d'apprentissage et de test
+images_apprentissage, images_validation, libelles_apprentissage, libelles_validation = train_test_split(Images,
+                                                                                                        Libelles,
+                                                                                                        test_size=0.25,
+                                                                                                        random_state=111)
+
+# Création des jeux d'apprentissage et de test
+images_apprentissage, images_validation, libelles_apprentissage, libelles_validation = train_test_split(Images,
+                                                                                                        Libelles,
+                                                                                                        test_size=0.25,
+                                                                                                        random_state=42)
+
+# Ajout d'une troisième valeur à nos tableaux d'images pour pouvoir être utilisés par le réseau de neurones,
+# notemment le paramètre input_shape de la fonction Conv2D
+images_apprentissage = images_apprentissage.reshape(images_apprentissage.shape[0], largeurImage, longueurImage, 1)
+print(images_apprentissage.shape)
+
+images_validation = images_validation.reshape(images_validation.shape[0], largeurImage, longueurImage, 1)
+
+# Création d'une variable servant de d'image de travail au réseau de neurone
+imageTravail = (largeurImage, longueurImage, 1)
+
+# Mise à l'echelle
+images_apprentissage = images_apprentissage.astype('float32') / 255
+images_validation = images_validation.astype('float32') / 255
+
+# Creation des categories en One-Hot encoding
+nombre_de_classes = 26
+libelles_apprentissage = keras.utils.to_categorical(libelles_apprentissage, nombre_de_classes)
+libelles_validation = keras.utils.to_categorical(libelles_validation, nombre_de_classes)
+
+# Réseau de neurone convolutif
+# 32 filtres de dimensions 3x3 avec une fonction d'activation de type RELU
+# Le filtre a en entree l'image de travail
+reseauCNN = Sequential()
+reseauCNN.add(Conv2D(32, kernel_size=(3, 3),
+                     activation='relu',
+                     input_shape=imageTravail))
+
+# Un seconde couche de 64 filtres de dimension 3x3
+reseauCNN.add(Conv2D(64, (3, 3), activation='relu'))
+
+# Une fonction de pooling
+reseauCNN.add(MaxPooling2D(pool_size=(2, 2)))
+reseauCNN.add(Dropout(0.25))
+
+# Une mise à plat
+reseauCNN.add(Flatten())
+
+# Le réseau de neurone avec en entrée 128 neurones
+# une fonction d'activation de type ReLU
+reseauCNN.add(Dense(128, activation='relu'))
+reseauCNN.add(Dropout(0.5))
+
+# Une dernière couche de type softmax
+reseauCNN.add(Dense(nombre_de_classes, activation='softmax'))
+
+# Compilation du modèle
+reseauCNN.compile(loss=keras.losses.categorical_crossentropy,
+                  optimizer=keras.optimizers.Adadelta(),
+                  metrics=['accuracy'])
+
+# Apprentissage avec une phase de validation
+# sur les jeux de test
+batch_size = 128
+epochs = 10
+
+reseauCNN.fit(images_apprentissage, libelles_apprentissage,
+              batch_size=batch_size,
+              epochs=epochs,
+              verbose=1,
+              validation_data=(images_validation, libelles_validation))
+
+# Sauvegarde du modèle
+reseauCNN.save('modele/modele_cas_pratiquev2.h5')
+
+# Evaluation de la précision du modèle
+score = reseauCNN.evaluate(images_validation, libelles_validation, verbose=0)
+print('Precision sur les donnees de validation:', score[1])

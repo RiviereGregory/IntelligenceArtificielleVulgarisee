@@ -48,12 +48,6 @@ print(Libelles[70000])
 images_apprentissage, images_validation, libelles_apprentissage, libelles_validation = train_test_split(Images,
                                                                                                         Libelles,
                                                                                                         test_size=0.25,
-                                                                                                        random_state=111)
-
-# Création des jeux d'apprentissage et de test
-images_apprentissage, images_validation, libelles_apprentissage, libelles_validation = train_test_split(Images,
-                                                                                                        Libelles,
-                                                                                                        test_size=0.25,
                                                                                                         random_state=42)
 
 # Ajout d'une troisième valeur à nos tableaux d'images pour pouvoir être utilisés par le réseau de neurones,

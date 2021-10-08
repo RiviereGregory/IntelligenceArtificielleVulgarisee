@@ -1,4 +1,11 @@
 import cv2
+import numpy as np
+
+# dimensions de l'ardoise
+zoneEcritureLongueurMin = 300
+zoneEcritureLongueurMax = 500
+zoneEcritureLargeurMin = 200
+zoneEcritureLargeurMax = 400
 
 print('Initialisation de la webcam')
 webCam = cv2.VideoCapture(0)
@@ -31,8 +38,61 @@ while True:
         x, y, w, h = cv2.boundingRect(approx)
 
         # On encadre la zone d'écriture en fonction des paramètres de longueur et largeur de l'ardoise
-        if len(approx) == 4:
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        if len(approx) == 4 and h > zoneEcritureLargeurMin and w > zoneEcritureLongueurMin \
+                and h < zoneEcritureLargeurMax and w < zoneEcritureLongueurMax:
+            # Encadrement de la zone d'écriture
+            area = cv2.contourArea(contour)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3);
+
+            # Capture de l'image à partir de la zone d'écriture avec une marge intérieure (padding) de 10
+            # pixels afin d'isoler uniquement la lettre
+            lettre = gris[y + 10:y + h - 10, x + 10:x + w - 10]
+
+            # On detecte les contours de la lettre  à l'aide de l'algorithme de Canny
+            cannyLettre = cv2.Canny(lettre, 30, 200)
+            contoursLettre, _ = cv2.findContours(cannyLettre.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+            # S'il existe une lettre de dessinée
+            if len(contoursLettre) > 5:
+
+                # Creation d'un tableau pour le stockage de l'image de la lettre
+                captureAlphabetTMP = np.zeros((400, 400), dtype=np.uint8)
+
+                # On detecte le plus grand contour (Reverse = True)
+                cnt = sorted(contoursLettre, key=cv2.contourArea, reverse=True)[0]
+
+                # On stocke les coordonnées du rectangle de delimitation de la lettre
+                xc, yc, wc, hc = cv2.boundingRect(cnt)
+
+                for contourLettre in contoursLettre:
+                    area = cv2.contourArea(contour)
+                    if area > 1000:
+
+                        # On dessine les contours la lettre pour une meilleure lecture (Trait de 10 px)
+                        cv2.drawContours(captureAlphabetTMP, contourLettre, -1, (255, 255, 255), 10)
+
+                        # On capture la lettre et on stock les valeurs  des pixels de la zone capturée ans un tableau
+                        captureLettre = np.zeros((400, 400), dtype=np.uint8)
+                        captureLettre = captureAlphabetTMP[yc:yc + hc, xc:xc + wc]
+
+                        # Des ombres peuvent être capturée dans la zone d'écriture provoquant alors des erreurs de
+                        # reconnaissance. Si une ombre est détectée, une des dimension du tableau de capture est
+                        # égale à zéro car aucun contour de lettre n'est détecté
+                        affichageLettreCapturee = True
+                        if captureLettre.shape[0] == 0 or captureLettre.shape[1] == 0:
+                            print("ERREUR A CAUSE DES OMBRES ! : ")
+                            affichageLettreCapturee = False
+
+                        # Si ce n'est pas une ombre, on affiche la lettre capturée à l'écran
+                        if affichageLettreCapturee:
+                            # cv2.destroyWindow("ContoursLettre")
+                            cv2.imshow("ContoursLettre", captureLettre)
+
+                            # Redimensionnement de l'image
+                            newImage = cv2.resize(captureLettre, (28, 28))
+                            newImage = np.array(newImage)
+                            newImage = newImage.astype('float32') / 255
+                            newImage.reshape(1, 28, 28, 1)
 
     # Affichage de l'image capturée par la webcam
     cv2.imshow("IMAGE", frame)
